@@ -1,0 +1,43 @@
+name: Build and Release Go Binary for Alpine (AMD64)
+
+on:
+  workflow_dispatch:  # 只允许手动触发
+
+jobs:
+  build:
+    runs-on: ubuntu-latest  # 这里选择的是 Ubuntu 环境，但是在 Ubuntu 中通过 Docker 来使用 Alpine 容器
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Go environment
+      uses: actions/setup-go@v3
+      with:
+        go-version: '1.24'  # 选择 Go 版本，适合你的项目需求
+
+    - name: Build Go binary for Alpine (AMD64)
+      run: |
+        # 使用 Alpine 容器编译 Go 项目
+        docker run --rm -v $(pwd):/workspace -w /workspace golang:alpine3.19 bash -c "go build -o claude"  # 这里的 my-app 是编译出的二进制文件名
+
+    - name: Upload Go binary as artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: claude  # 上传时使用的文件名
+        path: ./claude  # 二进制文件路径
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest  # 发布阶段依然运行在 Ubuntu 环境，但可以使用发布脚本
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Create GitHub Release and Upload Binary
+      uses: softprops/action-gh-release@v1
+      with:
+        files: ./my-app  # 发布时使用的文件路径
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # 自动生成的 GitHub Token
