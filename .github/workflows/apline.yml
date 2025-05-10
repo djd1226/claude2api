@@ -12,7 +12,7 @@ jobs:
       uses: actions/checkout@v2
 
     - name: Set up Go environment
-      uses: actions/setup-go@v2
+      uses: actions/setup-go@v3
       with:
         go-version: '1.24'  # 选择 Go 版本，适合你的项目需求
 
@@ -22,7 +22,7 @@ jobs:
         docker run --rm -v $(pwd):/workspace -w /workspace golang:alpine3.19 bash -c "go build -o claude"  # 这里的 my-app 是编译出的二进制文件名
 
     - name: Upload Go binary as artifact
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v2
       with:
         name: claude  # 上传时使用的文件名
         path: ./claude  # 二进制文件路径
